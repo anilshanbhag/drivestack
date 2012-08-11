@@ -23,7 +23,7 @@ should be defined in this file.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-from oauth2client.anyjson import simplejson
+from google_app.oauth2client.anyjson import simplejson
 
 
 class Error(Exception):

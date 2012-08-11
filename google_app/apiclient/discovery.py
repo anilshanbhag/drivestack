@@ -42,22 +42,22 @@ try:
 except ImportError:
     from cgi import parse_qsl
 
-from apiclient.errors import HttpError
-from apiclient.errors import InvalidJsonError
-from apiclient.errors import MediaUploadSizeError
-from apiclient.errors import UnacceptableMimeTypeError
-from apiclient.errors import UnknownApiNameOrVersion
-from apiclient.errors import UnknownLinkType
-from apiclient.http import HttpRequest
-from apiclient.http import MediaFileUpload
-from apiclient.http import MediaUpload
-from apiclient.model import JsonModel
-from apiclient.model import MediaModel
-from apiclient.model import RawModel
-from apiclient.schema import Schemas
+from google_app.apiclient.errors import HttpError
+from google_app.apiclient.errors import InvalidJsonError
+from google_app.apiclient.errors import MediaUploadSizeError
+from google_app.apiclient.errors import UnacceptableMimeTypeError
+from google_app.apiclient.errors import UnknownApiNameOrVersion
+from google_app.apiclient.errors import UnknownLinkType
+from google_app.apiclient.http import HttpRequest
+from google_app.apiclient.http import MediaFileUpload
+from google_app.apiclient.http import MediaUpload
+from google_app.apiclient.model import JsonModel
+from google_app.apiclient.model import MediaModel
+from google_app.apiclient.model import RawModel
+from google_app.apiclient.schema import Schemas
 from email.mime.multipart import MIMEMultipart
 from email.mime.nonmultipart import MIMENonMultipart
-from oauth2client.anyjson import simplejson
+from google_app.oauth2client.anyjson import simplejson
 
 logger = logging.getLogger(__name__)
 

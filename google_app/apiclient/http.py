@@ -43,7 +43,7 @@ from errors import ResumableUploadError
 from errors import UnexpectedBodyError
 from errors import UnexpectedMethodError
 from model import JsonModel
-from oauth2client.anyjson import simplejson
+from google_app.oauth2client.anyjson import simplejson
 
 
 DEFAULT_CHUNK_SIZE = 512*1024

@@ -29,7 +29,7 @@ import logging
 import urllib
 
 from errors import HttpError
-from oauth2client.anyjson import simplejson
+from google_app.oauth2client.anyjson import simplejson
 
 FLAGS = gflags.FLAGS
 

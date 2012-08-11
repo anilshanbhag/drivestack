@@ -10,8 +10,7 @@ def dropboxinterface(request,type):
         return redirect(client.register())
 
     if type == "oauthcallback":
-        client 
-        access_token = sess.obtain_access_token(request_token)
-        self.client = client.DropboxClient(sess)
+        return httpResponse(client.store_access_token)
+        
         
 

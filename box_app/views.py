@@ -10,4 +10,7 @@ def box_addaccount(request):
 
 def box_oauthcallback(request):
     pars = { 'ticket' : request.GET["ticket"], 'auth_token' : request.GET["auth_token"] }
-    return HttpResponse("hello u")
+    pars_string = json.dumps( pars )
+    boxClient = box.BoxDotNet()
+    res = boxClient.get_account_info( auth_token = request.GET["auth_token"] )
+    return HttpResponse(json.dumps(res))

@@ -62,7 +62,7 @@ The constructor takes a discovery document in which to look up named schema.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import copy
-from oauth2client.anyjson import simplejson
+from google_app.oauth2client.anyjson import simplejson
 
 
 class Schemas(object):

@@ -2,6 +2,13 @@ import os
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.client import OAuth2Credentials
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+from apiclient import errors
+from apiclient.discovery import build
+
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 static_folder=os.path.join(PROJECT_ROOT, 'static')
 
