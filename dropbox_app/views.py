@@ -6,6 +6,12 @@ from django.shortcuts import redirect
 
 def dropboxinterface(request,type):
     if type == "register":
-        x = DropBoxClient()
-        return redirect(x.register())
+        client = DropBoxClient()
+        return redirect(client.register())
+
+    if type == "oauthcallback":
+        client 
+        access_token = sess.obtain_access_token(request_token)
+        self.client = client.DropboxClient(sess)
+        
 
