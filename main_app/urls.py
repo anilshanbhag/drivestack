@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 from main_app.views import homepage
 from dropbox_app.views import dropboxinterface
 from box_app.views import box_addaccount, box_oauthcallback
+from google_app.views import *
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
@@ -20,4 +21,5 @@ urlpatterns = patterns('',
     (r'^dropbox/([a-z]*)$', dropboxinterface),
     (r'^box/addaccount', box_addaccount),
     (r'^box/oauthcallback', box_oauthcallback),
+    (r'^google/addaccount',google_addaccount),
 )
