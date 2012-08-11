@@ -10,7 +10,7 @@ def dropboxinterface(request,type):
         return redirect(client.register())
 
     if type == "oauthcallback":
-        return httpResponse(client.store_access_token)
+        return HttpResponse(client.store_access_token)
         
         
 
