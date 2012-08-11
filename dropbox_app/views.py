@@ -3,9 +3,9 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 
-def dropboxinterface(request):
-    #if type == "register":
-    return HttpResponse("hello u")
+def dropboxinterface(request,type):
+    if type == "register":
+        return HttpResponse(type)
 
 
         #return DropBoxClient.register(request)

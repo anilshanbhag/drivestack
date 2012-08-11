@@ -18,7 +18,7 @@ urlpatterns = patterns('',
 # Uncomment the next line to enable the admin:
 # url(r'^admin/', include(admin.site.urls)),
     (r'^$', homepage),
-    (r'^dropbox/register$', dropboxinterface),
+    (r'^dropbox/([a-z]*)$', dropboxinterface),
     (r'^box/addaccount', box_addaccount),
     (r'^box/oauthcallback', box_oauthcallback),
 #    (r'^google/addaccount',google_addaccount),
