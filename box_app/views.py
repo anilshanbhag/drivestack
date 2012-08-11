@@ -5,6 +5,8 @@ from apikeys import *
 import json
 
 import boxapi as box
+from boxdotnet import BoxDotNet
+from main_app.models import Accounts
 
 def box_addaccount(request):
     boxClient = box.Session( BOX_API_KEY )
@@ -16,4 +18,11 @@ def box_oauthcallback(request):
     pars_string = json.dumps( pars )
     boxClient = box.Session( BOX_API_KEY, auth_token = pars['auth_token'] )
     res = boxClient.get_account_info()
-    return HttpResponse(json.dumps(res))
+    p = Accounts( email = res['response']['user']['email']['value'], account_type = 'box', account_data = json.dumps(pars) )
+    p.save()
+    return redirect( '/home' ) 
+"""
+def box_uploadfile():
+    box = BoxDotNet()
+    box.upload
+"""

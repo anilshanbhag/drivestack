@@ -34,9 +34,10 @@ class Session(object):
 
     def get_account_info(self):
         params = {
+                'action': 'get_account_info',
                 'api_key': self.api_key,
                 'auth_token': self.auth_token
                 }
-        req = Request('get_account_info', api_version = 1, **params)
+        req = Request('', api_version = 1, params = params)
         req.do()
         return req.result

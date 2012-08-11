@@ -48,8 +48,5 @@ class Request(object):
         if self.result_format == 'json':
             self.result = json.loads(response)
         elif self.result_format == 'xml':
-            self.result = XML2Dict(response)
-        
-
-
-
+            x = XML2Dict()
+            self.result = x.fromstring(response)
