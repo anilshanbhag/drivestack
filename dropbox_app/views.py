@@ -13,22 +13,14 @@ import json
 
 def dropboxinterface(request,type):
     if type == "register":
-       
         sess = session.DropboxSession(APP_KEY, APP_SECRET, ACCESS_TYPE)
         request_token = sess.obtain_request_token()
         url = sess.build_authorize_url(request_token)
-        # Make the user sign in and authorize this token
         request.session["sess"]=sess
         return redirect( url+'&oauth_callback=http%3A%2F%2Fwncc.webfactional.com%2Fdropbox%2Foauthcallback')
 
     if type == "oauthcallback":
-        #request_token = request.GET["request_token"]
-        
-        uid = request.GET["uid"]
-        oauth_token=request.GET["oauth_token"]
-        
         sess=request.session["sess"]
-        #return HttpResponse(request_token)
         access_token = sess.obtain_access_token()
         access_headers=sess.build_access_headers('POST','https://api-content.dropbox.com/1/')
         json_access_header = json.dumps( access_headers )
@@ -36,11 +28,15 @@ def dropboxinterface(request,type):
         info= connected_client.account_info()
         p = Accounts( email = info['email'], account_type = 'dropbox', account_data =json_access_header )
         p.save()
-        return HttpResponse(connected_client.account_info().items())
-        #sess = session.DropboxSession(APP_KEY, APP_SECRET, ACCESS_TYPE)
-        #access_token = sess.obtain_access_token(request_token)
-        #self.client = client.DropboxClient(self.sess)
+        request.session["email"]=info["email"]
+        return redirect('/dropbox/existing')
 
-        
-        
+
+    if type == "existing":
+        access_header = Accounts.objects.filter(email=request.session["email"]).filter(account_type="dropbox").values('account_data')[0]["account_data"]
+        sess=session.DropboxSession(APP_KEY, APP_SECRET, ACCESS_TYPE, access_header)
+        request.session["dropbox_sess"]=sess
+        connected_client = client.DropboxClient(sess)
+        info= connected_client.account_info()
+        return HttpResponse(info["email"])
 

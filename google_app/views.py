@@ -12,13 +12,14 @@ from apiclient import errors
 from apiclient.discovery import build
 from main_app.models import Accounts
 from google_app.models import GoogleData
+from google_app.drive_uploader import ServiceHandler
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 static_folder=os.path.join(PROJECT_ROOT, 'static')
 
 CLIENTSECRETS_LOCATION = os.path.join(static_folder,'CLIENT_SECRETS.JSON')
 REDIRECT_URI = 'http://wncc.webfactional.com/google/oauthcallback'
 SCOPES = ['https://www.googleapis.com/auth/drive','https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/userinfo.email','https://www.googleapis.com/auth/userinfo.profile',]
-
+#def insert_file(service,title,description,mime_type
 def is_returning_user(email):
     try:
         user = Accounts.objects.get(email=email,account_type="google")
@@ -117,7 +118,9 @@ def google_oauthcallback(request):
         try:
             credentials = OAuth2Credentials(access_token,client_id,client_secret,refresh_token,token_expiry,token_uri,user_agent)
             service = builds_service(credentials)
-            return render_to_response("google.html")
+            post_data = ServiceHandler()
+            id = post_data.post(service)
+            return HttpResponse("TEST"+id)
         except:
             #return render_to_response("templates/index.html")
             return HttpResponse("DSADADA")

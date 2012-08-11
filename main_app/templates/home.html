@@ -81,7 +81,7 @@
                 <p>DriveStack would upload your file to one of your connected drives depending on available space in them. </p>  
                 <form method="post" enctype="multipart/form-data" action="/upload">  
                     <input type="file" name="file" id="file" class="btn btn-primary" multiple="">  
-                    <button type="submit" id="btn" style="display: none; ">Upload Files!</button>  
+                    <button type="submit" id="btn" style="">Upload Files!</button>  
                 </form> 
                 <div id="response"></div>
             </div>
@@ -109,6 +109,7 @@
         row_html += row['name'] + "</a></td><td>" + row['origin'] + "</td><td>" + "</td> </tr>";
         drive.innerHTML += row_html;
     }
+
     // File upload modal
     $('#fileUpload').modal({
         show: false
@@ -140,7 +141,7 @@
     
         if (formdata) {
             $.ajax({
-                url: "upload.php",
+                url: "/upload",
                 type: "POST",
                 data: formdata,
                 processData: false,
@@ -151,5 +152,6 @@
             });
         }
     }, false);
+    
     </script>
 </html>
