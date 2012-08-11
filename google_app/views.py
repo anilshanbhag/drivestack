@@ -3,6 +3,9 @@ from django.http import HttpResponse
 import boxdotnet as box
 from apikeys import *
 from django.shortcuts import redirect
+PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
+static_folder=os.path.join(PROJECT_ROOT, 'static')
+
 CLIENTSECRETS_LOCATION = os.path.join(static_folder,'CLIENT_SECRETS.JSON')
 REDIRECT_URI = 'http://wncc.webfactional.com/google/oauthcallback'
 
