@@ -3,6 +3,7 @@ from DropBoxClient import DropBoxClient
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from pprint import pprint
 
 def dropboxinterface(request,type):
     if type == "register":
@@ -10,7 +11,7 @@ def dropboxinterface(request,type):
         return redirect(client.register())
 
     if type == "oauthcallback":
-        return HttpResponse(client.store_access_token)
+        return HttpResponse(request.GET["uid"])
         
         
 

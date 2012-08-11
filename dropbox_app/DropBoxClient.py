@@ -19,7 +19,7 @@ class DropBoxClient:
         url = self.sess.build_authorize_url(request_token)
         
         # Make the user sign in and authorize this token
-        return url
+        return url+'&oauth_callback=http%3A%2F%2Fwncc.webfactional.com%2Fdropbox%2Foauthcallback'
         """
         print "url:", url
         print "Please visit this website and press the 'Allow' button, then hit 'Enter' here."
