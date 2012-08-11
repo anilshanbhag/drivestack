@@ -21,6 +21,8 @@ def google_addaccount(request):
     authorize_url = flow.step1_get_authorize_url(callback)
     return redirect(authorize_url)
 	
+def receive_oauthcode(request):
+    code = request.GET.get('code')
 
 
 
