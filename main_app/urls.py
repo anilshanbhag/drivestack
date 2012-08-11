@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from main_app.views import homepage,home
+from main_app.views import homepage, home, upload
 from dropbox_app.views import dropboxinterface
 from box_app.views import box_addaccount, box_oauthcallback
 from google_app.views import google_addaccount, google_oauthcallback
@@ -19,6 +19,7 @@ urlpatterns = patterns('',
 # url(r'^admin/', include(admin.site.urls)),
     (r'^$', homepage),
     (r'^home', home),
+    (r'^upload$', upload),
     (r'^dropbox/([a-z]*)$', dropboxinterface),
     (r'^box/addaccount', box_addaccount),
     (r'^box/oauthcallback', box_oauthcallback),

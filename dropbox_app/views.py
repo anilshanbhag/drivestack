@@ -8,7 +8,8 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from pprint import pprint
-from main_app.models import *
+from main_app.models import Accounts
+import json
 
 def dropboxinterface(request,type):
     if type == "register":
@@ -29,7 +30,12 @@ def dropboxinterface(request,type):
         sess=request.session["sess"]
         #return HttpResponse(request_token)
         access_token = sess.obtain_access_token()
+        access_headers=sess.build_access_headers('POST','https://api-content.dropbox.com/1/')
+        json_access_header = json.dumps( access_headers )
         connected_client = client.DropboxClient(sess)
+        info= connected_client.account_info()
+        p = Accounts( email = info['email'], account_type = 'dropbox', account_data =json_access_header )
+        p.save()
         return HttpResponse(connected_client.account_info().items())
         #sess = session.DropboxSession(APP_KEY, APP_SECRET, ACCESS_TYPE)
         #access_token = sess.obtain_access_token(request_token)

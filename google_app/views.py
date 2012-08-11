@@ -57,7 +57,7 @@ def exchange_code(authorization_code):
         return "ERROR"
 
 def add_to_db(uid,email,access_token,client_id,client_secret,refresh_token,token_expiry,token_uri,user_agent,id_token,all_data):
-    google_data = GoogleData('',str(email),str(uid),access_token,client_id,client_secret,refresh_token,token_expiry,token_uri,user_agent,id_token)
+    google_data = GoogleData('',str(uid),str(email),access_token,client_id,client_secret,refresh_token,token_expiry,token_uri,user_agent,id_token)
     google_data.save()
     account_data = Accounts('',email,'','google',all_data)
     account_data.save()
@@ -93,7 +93,8 @@ def google_addaccount(request):
     callback = 'http://wncc.webfactional.com/google/oauthcallback'
     authorize_url = flow.step1_get_authorize_url(callback)
     return redirect(authorize_url)
-    
+
+#def upload_google_file()    
 def google_oauthcallback(request):
     code = request.GET.get('code')
     credentials =  exchange_code(code)
@@ -116,6 +117,7 @@ def google_oauthcallback(request):
         try:
             credentials = OAuth2Credentials(access_token,client_id,client_secret,refresh_token,token_expiry,token_uri,user_agent)
             service = builds_service(credentials)
-            return HttpResponse(str(retrieve_all_files(service)))
+            return render_to_response("google.html")
         except:
+            #return render_to_response("templates/index.html")
             return HttpResponse("DSADADA")
