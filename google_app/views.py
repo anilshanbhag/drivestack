@@ -3,6 +3,9 @@ from django.http import HttpResponse
 import boxdotnet as box
 from apikeys import *
 from django.shortcuts import redirect
+def google_addaccount(request):
+	
+	
 
 
 
