@@ -187,7 +187,7 @@ class BoxDotNet(object):
 
     #-------------------------------------------------------------------
     #-------------------------------------------------------------------
-    def upload(self, filename, **arg):
+    def upload(self, filename, data, **arg):
         """
         Upload a file to box.net.
         """
@@ -206,6 +206,8 @@ class BoxDotNet(object):
         boundary = mimetools.choose_boundary()
         body = ""
 
+        arg["share"] = "1"
+        
         # filename
         body += "--%s\r\n" % (boundary)
         body += 'Content-Disposition: form-data; name="share"\r\n\r\n'
@@ -217,10 +219,6 @@ class BoxDotNet(object):
         body += "Content-Type: %s\r\n\r\n" % get_content_type(filename)
 
         #print body
-
-        fp = file(filename, "rb")
-        data = fp.read()
-        fp.close()
 
         postData = body.encode("utf_8") + data + \
             ("\r\n--%s--" % (boundary)).encode("utf_8")

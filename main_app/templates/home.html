@@ -1,6 +1,7 @@
 <!DOCTYPE HTML>
 <html>
     <head>
+        <title> DriveStack </title>
     	<link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
         <style type="text/css">
             .folder_icon {
@@ -25,37 +26,69 @@
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="row">
-                <div class="span4">
-                 <a href="/home"><img src="/static/img/drivestack.png" /></a>
-                </div>
-                <div class="span4 offset4">
-                	<ul class="nav nav-pills">
-						<li>
-					    	<a href="#" class="btn disabled tabbed">Home</a>
-					  	</li>
-					  	<li><a href="#" class="tabbed">Getting Started</a></li>
-                        <li class="dropdown" id="user-options">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#user-options">
-                              {{ person.username }}
-                              <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                              <li><span class="dropdown-unlink"><strong>person.username</strong></span></li>
-                              <li><span class="dropdown-unlink">person.email </span></li>
-                              <li><span class="dropdown-unlink dull"></span></li>
-                 			  # sprintf("%01.2f of %01.2f used", $boxFilled/1073741824.0 , $boxQuota/1073741824.0 );
-                              <li class="divider"></li>
-                              <li><a href="#">Settings</a></li>
-                              <li><a href="#">LogOut</a></li>
-                            </ul>
-                        </li>
-					</ul>
-                </div>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+              <div class="container">
+                <a class="brand" href="#"><!--<img src="/static/img/drivestack.png" />--> DriveStack</a>
+                <ul class="nav pull-right">
+                  <li class="active"><a href="#">Home</a></li>
+                  <li><a href="/intro">Gettin Started</a></li>
+                  <li id="fat-menu" class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Anil Shanbhag<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                      <li><span class="dropdown-unlink"><strong>{{ username }} </strong></span></li>
+                      <li><span class="dropdown-unlink">{{ email }}</span></li>
+                      <!-- # sprintf("%01.2f of %01.2f used", $boxFilled/1073741824.0 , $boxQuota/1073741824.0 ); -->
+                      <li class="divider"></li>
+                      <li><a href="#">Settings</a></li>
+                      <li><a href="#">LogOut</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+        </div> 
+        <div class="container" style="margin-top: 60px;">
          	<div class="row">
-         		<div class="span12" id="drive">
+                <div class="span1" style="float:right;">     
                     <a class="btn" data-toggle="modal" href="#fileUpload">Upload</a>
+                </div>
+                <div style="width:70px; float:right; margin-left:10px;">
+                    <div class="btn-group">
+                      <button class="btn"><img src='/static/icons/dropbox.png' width=15/></button>
+                      <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                      <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/dropbox/addaccount">Add another DropBox</a></li>
+                      </ul>
+                    </div>
+                </div>
+                <div style="width:70px; float:right; margin-left:10px;">
+                    <div class="btn-group">
+                      <button class="btn"><img src='/static/icons/box.png' width=15/></button>
+                      <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                      <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/box/addaccount">Add another Box</a></li>
+                      </ul>
+                    </div>
+                </div>
+                <div style="width:70px; float:right; margin-left:10px;">
+                    <div class="btn-group">
+                      <button class="btn"><img src='/static/icons/drive.png' width=15/></button>
+                      <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                      <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/drive/addaccount">Add another Drive</a></li>
+                      </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 10px">
+         		<div class="span12" id="drive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -101,12 +134,15 @@
         row_html += pathArr[pathArr.length - 1] + "</a></td><td>" + row['origin'] + "</td><td>" + row['modified'] + "</td> </tr>";
         drive.innerHTML += row_html;
     }
-    var boxData = {};
-    for (i in boxData['contents']) {
-        var row = boxData['contents'][i];
+
+    var dumpStr = "{{ boxData }}";
+    dumpStr = dumpStr.replace(/&quot;/g, "\"");
+    var boxData = JSON.parse( dumpStr );
+    for (i in boxData['item_collection']['entries']) {
+        var row = boxData['item_collection']['entries'][i];
         var row_html = "<tr> <td> <span class='favourite_icon'></span> </td> <td>";
-        row_html += row['is_dir'] ? "<a href='#'><span class='folder_icon'></span>" : "<a href='#'><span class='file_icon'></span>";
-        row_html += row['name'] + "</a></td><td>" + row['origin'] + "</td><td>" + "</td> </tr>";
+        row_html += row['type'] == "folder" ? "<a href='#'><span class='folder_icon'></span>" : "<a href='/box/download/" + row["id"] + "'><span class='file_icon'></span>";
+        row_html += row['name'] + "</a></td><td>" + "Box" + "</td><td>" + "</td> </tr>";
         drive.innerHTML += row_html;
     }
 

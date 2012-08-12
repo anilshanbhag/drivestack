@@ -1,5 +1,6 @@
 # Django settings for myproject proje
 import os.path
+UPLOAD_FOLDER= os.path.join(os.path.dirname(__file__), 'upload_folder')
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 

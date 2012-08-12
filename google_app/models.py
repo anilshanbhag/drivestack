@@ -1,6 +1,6 @@
 from django.db import models
 class GoogleData(models.Model):
-    id = models.CharField(primary_key=True,max_length=1000)
+    id = models.AutoField(primary_key=True)
     uid = models.CharField(max_length=400)
     email = models.CharField(max_length=400)
 
