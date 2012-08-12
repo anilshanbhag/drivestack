@@ -98,8 +98,15 @@ def builds_service(credentials):
     http_auth = credentials.authorize(http)
     return build('drive', 'v2', http=http_auth)
 
-def retrieve_all_files(service):
+def retrieve_all_files(email):
     result = []
+    try:
+        all_data = GoogleData.objects.filter(email=email).values()[0]
+    except:
+        return "{}"
+    #return HttpResponse(str(all_data))
+    credentials = OAuth2Credentials(str(all_data["access_token"]),str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
+    service = builds_service(credentials)
     page_token = None
     while True:
         try:
@@ -117,10 +124,24 @@ def retrieve_all_files(service):
             result.append(error)
             break
     test = ""
+    json_return = []
+    i=0
     for values in result:
-        test = test + "----------------" + values
+        try:
+            test = test + "----------------" + str(values)
+            mimeType = str(values.get('mimeType'))
+            if mimeType== "application/vnd.google-apps.folder":
+                is_dir = "True"
+            else:
+                is_dir="False"
+            json_return.append({"id":str(values.get("id")),"title":str(values.get('title')),"is_dir":is_dir,"modified":str(values.get("modifiedDate"))})
+        except:
+            test = test
 
-    return HttpResponse(values)
+        #json_return.append(str(values.get("title")))
+        i+=1
+
+    return str(json_return)
 
 def google_addaccount(request):
     flow = OAuth2WebServerFlow(client_id='640541804881-qn8sn3la5ag395ptr341mtebf9s49ru2.apps.googleusercontent.com',client_secret='NAU1FwwH_m8Hi50APEfonoQZ',scope=SCOPES,user_agent='buzz-cmdline-sample/1.0')
@@ -143,10 +164,11 @@ def google_home(email):
     all_data = GoogleData.objects.filter(email=email).values()[0]
     #return HttpResponse(str(all_data))
     credentials = OAuth2Credentials(str(all_data["access_token"]),str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
-    try:
-        service = builds_service(credentials)
-    except:
-        refresh_google_token(all_data["email"])
+    #try:
+    service = builds_service(credentials)
+    #except:
+        #refresh_google_token(all_data["email"])
+        #service = builds_service(credentials)
     return str(retrieve_all_files(service))
 
 def google_oauthcallback(request):
@@ -174,11 +196,11 @@ def google_oauthcallback(request):
         """try:
             credentials = OAuth2Credentials(access_token,client_id,client_secret,refresh_token,token_expiry,token_uri,user_agent)
             service = builds_service(credentials)
-            post_data = ServiceHandler()
+            #post_data = ServiceHandler()
             
-            id = post_data.post(service)
-            file_content  = post_data.get(service,id)
-            return HttpResponse("File Contents: "+file_content)
+            #id = post_data.post(service)
+            #file_content  = post_data.get(service,id)
+            return HttpResponse("File Contents: "+str(retrieve_all_files(service)))
         except:
             #return render_to_response("templates/index.html")
             return HttpResponse("DSADADA")"""

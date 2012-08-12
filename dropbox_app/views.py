@@ -44,14 +44,13 @@ def dropboxinterface(request,type):
 
     if type == "existing":
         connected_client=connect_client(request)
-        info= connected_client.account_info()
         #myfile=open(os.path.join(UPLOAD_FOLDER,'wsgi.py'),'r')
         #dropboxupload(request,'web_upload_app-test.py',myfile)
         #dropboxdownload(request,'proto.py')
         #myfile=open(os.path.join(UPLOAD_FOLDER,'wsgi.py'),'r')
         
         #TODO : empty root handling
-        return dropboxfiles(request)
+        return redirect ('/home')
 
     if type == "refresh":
         return dropboxfiles(request)
@@ -67,7 +66,7 @@ def dropboxfiles(request):
             if inner.has_key(key):
                 del inner[key]
         less_home_content.append(inner)
-    return HttpResponse(json.dumps(less_home_content))
+    return less_home_content
 
 def connect_client(request):
     access_token = json.loads(Accounts.objects.filter(email=request.session["email"]).filter(account_type="dropbox").values('account_data')[0]["account_data"])

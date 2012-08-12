@@ -82,7 +82,7 @@
                       <ul class="dropdown-menu">
                         <li><a href="#">Action</a></li>
                         <li class="divider"></li>
-                        <li><a href="/drive/addaccount">Add another Drive</a></li>
+                        <li><a href="/google/addaccount">Add another Drive</a></li>
                       </ul>
                     </div>
                 </div>
@@ -96,6 +96,7 @@
                                 <th>Title </th>
                                 <th>Store </th>
                                 <th>Last Modified </th>
+                                <th>Modify</th>
                             </tr>
                         </thead>
                         <tbody id="drive-content">
@@ -119,35 +120,58 @@
                 <div id="response"></div>
             </div>
         </div>
+        <div class="modal hide fade" id="fileShare">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">x</button>
+                <h3>Share via DriveStack</h3>
+            </div>
+            <div class="modal-body">
+                <h4>IntelliShare</h4>
+                <p>The recipient need not have </p>
+                <form method="GET" action="/share">  
+                    <input type="text" name="toemail" value="ashwing.2005@gmail.com">
+                    <input type="hidden" name="fromcloud" value="box">  
+                    <input type="hidden" name="fileid" value="2833617025">  
+                    <button type="submit" id="btn">Upload Files!</button>  
+                </form> 
+                <div id="response"></div>
+            </div>
+        </div>
     </body>
     <script type="text/javascript" src="/static/bootstrap/js/jquery.min.js"></script>
     <script type="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript">
     // Drive Show
     var drive = document.querySelector('#drive-content'); 
-    var dropboxData = {};
-    for (i in dropboxData['contents']) {
-        var row = dropboxData['contents'][i];
+    var dropboxData = "{{ dropboxData }}";
+    dropboxData = dropboxData.replace(/&quot;/g, "\"");
+    dropboxData = JSON.parse( dropboxData );
+    for (i in dropboxData) {
+        var row = dropboxData[i];
         var pathArr = row['path'].split('/');
         var row_html = "<tr> <td> <span class='favourite_icon'></span> </td> <td>";
         row_html += row['is_dir'] ? "<a href='#'><span class='folder_icon'></span>" : "<a href='#'><span class='file_icon'></span>";
-        row_html += pathArr[pathArr.length - 1] + "</a></td><td>" + row['origin'] + "</td><td>" + row['modified'] + "</td> </tr>";
+        row_html += pathArr[pathArr.length - 1] + "</a></td><td>Dropbox</td><td>" + row['modified'] + "</td> <td><a data-toggle='modal' href='#fileShare' href='share'><img src='/static/icons/share.png' /></a><a href='delete'><img src='/static/icons/delete.png' /></a></td></tr>";
         drive.innerHTML += row_html;
     }
 
-    var dumpStr = "{{ boxData }}";
-    dumpStr = dumpStr.replace(/&quot;/g, "\"");
-    var boxData = JSON.parse( dumpStr );
+    var boxData = "{{ boxData }}";
+    boxData = boxData.replace(/&quot;/g, "\"");
+    boxData = JSON.parse( boxData );
     for (i in boxData['item_collection']['entries']) {
         var row = boxData['item_collection']['entries'][i];
         var row_html = "<tr> <td> <span class='favourite_icon'></span> </td> <td>";
         row_html += row['type'] == "folder" ? "<a href='#'><span class='folder_icon'></span>" : "<a href='/box/download/" + row["id"] + "'><span class='file_icon'></span>";
-        row_html += row['name'] + "</a></td><td>" + "Box" + "</td><td>" + "</td> </tr>";
+        row_html += row['name'] + "</a></td><td>" + "Box" + "</td><td>" + "</td><td><a data-toggle='modal' href='#fileShare' href='share'><img src='/static/icons/share.png' /></a><a href='delete'><img src='/static/icons/delete.png' /></a></td></tr>";
         drive.innerHTML += row_html;
     }
 
     // File upload modal
     $('#fileUpload').modal({
+        show: false
+    });
+
+    $('#fileShare').modal({
         show: false
     });
 
