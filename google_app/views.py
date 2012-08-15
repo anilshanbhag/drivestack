@@ -2,6 +2,8 @@ import os
 import urllib
 import json
 import httplib2
+import urllib2
+import urllib
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -23,24 +25,47 @@ CLIENTSECRETS_LOCATION = os.path.join(static_folder,'CLIENT_SECRETS.JSON')
 REDIRECT_URI = 'http://wncc.webfactional.com/google/oauthcallback'
 SCOPES = ['https://www.googleapis.com/auth/drive','https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/userinfo.email','https://www.googleapis.com/auth/userinfo.profile',]
 #def insert_file(service,title,description,mime_type
-def upload_to_google(email,content,title="New Document from DriveStack",mimetype="text/plain",description="this has been uploaded by Drivestack"):
+def upload_to_google(email,fileid,title="New Document from DriveStack",mimetype="text/plain",description="this has been uploaded by Drivestack"):
     
     all_data = GoogleData.objects.filter(email=email).values()[0]
     #return HttpResponse(str(all_data))
     credentials = OAuth2Credentials(str(all_data["access_token"]),str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
-    service = builds_service(credentials)
-    service_handler = ServiceHandler()
-    file_id = service_handler.post(service,mime_type,content,title,description)
+    try:
+        service = builds_service(credentials)
+    except:
+        access_token = refresh_google_token(email)
+        credentials = OAuth2Credentials(access_token,str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
+        service = builds_service(credentials)
+        service_handler = ServiceHandler()
+    f = open(os.path.join(upload_path,file_id),'r')
+    content = f.read()
+    f.close()
+    try:
+        file_id = service_handler.post(service,mime_type,content,title,description)
+    except:
+        
+        access_token = refresh_google_token(email)
+        credentials = OAuth2Credentials(access_token,str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
+        service = builds_service(credentials)
+        service_handler = ServiceHandler()
+        file_id = service_handler.post(service,mime_type,content,title,description)
     #file_content  =service_handler.service,file_id)
-    return HttpResponse("File ID: "+file_id)
+    return file_id
 
 def download_from_google(email,file_id):
     all_data = GoogleData.objects.filter(email=email).values()[0]
     #return HttpResponse(str(all_data))
     credentials = OAuth2Credentials(str(all_data["access_token"]),str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
-    service = builds_service(credentials)
-    service_handler = ServiceHandler()
-    response = service_handler.get(service,file_id)
+    try:
+        service = builds_service(credentials)
+        service_handler = ServiceHandler()
+        response = service_handler.get(service,file_id)
+    except:
+        access_token = refresh_google_token(email)
+        credentials = OAuth2Credentials(access_token,str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
+        service = builds_service(credentials)
+        service_handler = ServiceHandler()
+        response = service_handler.get(service,file_id)
     content = response['content']
     title = response['title']
     f=open(os.path.join(upload_path,file_id),'w')
@@ -103,22 +128,29 @@ def retrieve_all_files(email):
     try:
         all_data = GoogleData.objects.filter(email=email).values()[0]
     except:
-        return "{}"
-    #return HttpResponse(str(all_data))
-    credentials = OAuth2Credentials(str(all_data["access_token"]),str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
-    service = builds_service(credentials)
+        #access_token = refresh_google_token(email)
+        #credentials = OAuth2Credentials(access_token,str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
+        #service = builds_service(credentials)
+        return ""
+
     page_token = None
     while True:
         try:
             param = {}
             if page_token:
                 param['pageToken'] = page_token
-            files = service.files().list(**param).execute()
-            result.extend(files['items'])
-            page_token = files.get('nextPageToken')
-            if not page_token:
-                result.append("ERROR")
-                break
+            try:
+                files = service.files().list(**param).execute()
+            except:
+                access_token = refresh_google_token(email)
+                credentials = OAuth2Credentials(access_token,str(all_data["client_id"]),str(all_data["client_secret"]),str(all_data["refresh_token"]),str(all_data["token_expiry"]),str(all_data["token_uri"]),str(all_data["user_agent"]))
+                service = builds_service(credentials)
+                files = service.files().list(**param).execute()
+                result.extend(files['items'])
+                page_token = files.get('nextPageToken')
+                if not page_token:
+                    result.append("ERROR")
+                    break
         except errors.HttpError, error:
             print 'An error occurred: %s' % error
             result.append(error)
@@ -127,6 +159,7 @@ def retrieve_all_files(email):
     json_return = []
     i=0
     for values in result:
+
         try:
             test = test + "----------------" + str(values)
             mimeType = str(values.get('mimeType'))
@@ -134,14 +167,16 @@ def retrieve_all_files(email):
                 is_dir = "True"
             else:
                 is_dir="False"
-            json_return.append({"id":str(values.get("id")),"title":str(values.get('title')),"is_dir":is_dir,"modified":str(values.get("modifiedDate"))})
+            json_return.append({"id":values.get("id"),"title":values.get('title'),"is_dir":is_dir,"modified":values.get("modifiedDate")})
         except:
             test = test
 
         #json_return.append(str(values.get("title")))
         i+=1
+        if i==9:
+            return json_return
 
-    return str(json_return)
+    return json_return
 
 def google_addaccount(request):
     flow = OAuth2WebServerFlow(client_id='640541804881-qn8sn3la5ag395ptr341mtebf9s49ru2.apps.googleusercontent.com',client_secret='NAU1FwwH_m8Hi50APEfonoQZ',scope=SCOPES,user_agent='buzz-cmdline-sample/1.0')
@@ -153,10 +188,20 @@ def google_addaccount(request):
 #def upload_google_file()    
 def refresh_google_token(email):
     #email = request.session["email"]
-    refresh_token = GoogleData.objects.filter(email=email).values('refresh_token')[0]["refresh_token"]
-    query = urllib.urlencode({'token':refresh_token})
-    http = httplib2.Http()
-    access_token = http.request(('https://accounts.google.com/o/oauth2/revoke?' + query), 'GET')
+    try:
+        all_data = GoogleData.objects.filter(email=email).values()[0]
+    except:
+        return "Error"
+    #return HttpResponse(str(all_data))
+    url='https://accounts.google.com/o/oauth2/token'
+    values = {'refresh_token':all_data['refresh_token'],'client_id':all_data['client_id'],'client_secret':all_data['client_secret'],'grant_type':'refresh_token'}
+    data = urllib.urlencode(values)
+    req = urllib2.Request(url, data)
+    response = urllib2.urlopen(req)
+    the_page = json.loads(response.read())
+    return str(the_page["access_token"])
+
+        
     return str(access_token)
 
 def google_home(email):

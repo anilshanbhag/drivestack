@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from main_app.views import homepage, home, upload, home_saket, crosssharerequest
+from main_app.views import homepage, home, upload, home_saket, crosssharerequest, crosssharemanifest
 from dropbox_app.views import dropboxinterface
 from box_app.views import box_addaccount, box_oauthcallback, box_download
 from google_app.views import google_addaccount, google_oauthcallback, refresh_google_token
@@ -21,7 +21,8 @@ urlpatterns = patterns('',
     (r'^home$', home),
 
     (r'^homes$', home_saket),
-    (r'^share', crosssharerequest),
+    (r'^share$', crosssharerequest),
+    (r'^shareaccept$', crosssharemanifest),
     (r'^upload$', upload),
     (r'^dropbox/([a-z]*)$', dropboxinterface),
 

@@ -35,10 +35,10 @@ def dropboxinterface(request,type):
         json_access_token = json.dumps((str(access_token.key),str(access_token.secret)))
         connected_client = client.DropboxClient(sess)
         info= connected_client.account_info()
+        request.session["email"]=info["email"]
         if(Accounts.objects.filter(email=request.session["email"]).filter(account_type="dropbox").values('account_data').count() == 0):
             p = Accounts( email = info['email'], account_type = 'dropbox', account_data =json_access_token )
             p.save()
-        request.session["email"]=info["email"]
         return redirect('/dropbox/existing')
 
 
@@ -58,6 +58,8 @@ def dropboxinterface(request,type):
         
 
 def dropboxfiles(request):
+    if(Accounts.objects.filter(email=request.session["email"]).filter(account_type="dropbox").values('account_data').count() == 0):
+        return ""
     connected_client=connect_client(request)
     home_content = connected_client.metadata("/")["contents"]
     less_home_content = []

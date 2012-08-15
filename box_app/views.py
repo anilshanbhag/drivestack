@@ -3,10 +3,13 @@ from django.http import HttpResponse
 
 from apikeys import *
 import json
+import os.path
+import urllib2
 
 import boxapi as box
 from boxdotnet import BoxDotNet
 from main_app.models import Accounts
+from main_app.settings import *
 
 def box_addaccount(request):
     boxClient = box.Session( BOX_API_KEY )
@@ -45,18 +48,22 @@ def box_uploadfile( email,fileid,filename):
 
     accounts = Accounts.objects.filter(email = email, account_type = 'box')
     account_data = json.loads( accounts[0].account_data )
-    data=open(os.path.join(UPLOAD_FOLDER,fileid),'r')
+    data=open(os.path.join(UPLOAD_FOLDER,fileid),'r').read()
     box.upload(filename, data , api_key = BOX_API_KEY, auth_token = account_data['auth_token'], folder_id = "0")
 
 def box_download( request, id ):
     email = request.session["email"]
     accounts = Accounts.objects.filter(email = email, account_type = 'box')
     account_data = json.loads( accounts[0].account_data )
-    return redirect("https://www.box.net/api/1.0/download/%s/%s" % (account_data['auth_token'], id))
+    f= urllib2.urlopen("https://www.box.net/api/1.0/download/%s/%s" % (account_data['auth_token'], id)).read()
+    g = open(os.path.join(UPLOAD_FOLDER, id), 'wb')
+    g.write(f)
+    g.close()
 
-def box_download_helper( email, id ):
+def box_download_helper( email, id, name ):
     accounts = Accounts.objects.filter(email = email, account_type = 'box')
     account_data = json.loads( accounts[0].account_data )
-    return redirect("https://www.box.net/api/1.0/download/%s/%s" % (account_data['auth_token'], id))
-
-
+    f= urllib2.urlopen("https://www.box.net/api/1.0/download/%s/%s" % (account_data['auth_token'], id)).read()
+    g = open(os.path.join(UPLOAD_FOLDER, name), 'wb')
+    g.write(f)
+    g.close()
