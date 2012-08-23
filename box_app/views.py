@@ -5,27 +5,43 @@ from apikeys import *
 import json
 import os.path
 import urllib2
+from datetime import datetime
 
 import boxapi as box
 from boxdotnet import BoxDotNet
 from main_app.models import Accounts
 from main_app.settings import *
 
+"""
+Box Flow
+
+OAuth Initiate => 
+
+
+"""
+
 def box_addaccount(request):
     boxClient = box.Session( BOX_API_KEY )
-    boxClient.apply_new_authtoken()
+    boxClient.apply_new_authtoken( )
     return redirect( boxClient.auth_url )
-    # box_uploadfile("anilashanbhag@gmail.com")
-    # return HttpResponse("done")
 
 def box_oauthcallback(request):
     pars = { 'ticket' : request.GET["ticket"], 'auth_token' : request.GET["auth_token"] }
     pars_string = json.dumps( pars )
     boxClient = box.Session( BOX_API_KEY, auth_token = pars['auth_token'] )
+    
     res = boxClient.get_account_info()
     email = res['response']['user']['email']['value']
     request.session["email"] = email
-    p = Accounts( email = email, account_type = 'box', account_data = json.dumps(pars) )
+
+    # Remove previous accounts
+    p = Accounts.objects.filter(email= email, account_type = 'box')
+    if len(p) >= 1:
+        for acc in p: 
+            acc.delete()
+
+    # Add the account with new account details
+    p = Accounts( email = email, account_type = 'box', account_data = json.dumps(pars))
     p.save()
 
     return redirect( '/home' ) 
