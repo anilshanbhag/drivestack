@@ -9,7 +9,8 @@ from dropbox_app.views import dropboxdownload_server,dropboxupload_server
 from box_app.views import box_download_helper,box_uploadfile
 from google_app.views import google_home,retrieve_all_files,refresh_google_token
 import json
-
+import os.path
+from main_app.settings import UPLOAD_FOLDER
 def homepage(request):
     # request.session["name"] = "DSADSADSADSAD"
     return render_to_response('index.html')
@@ -32,11 +33,22 @@ def home(request):
 def home_saket(request):
     data = refresh_google_token(request.session["email"])
     return HttpResponse(data)
+
 @csrf_exempt
 def upload(request):
-    # request.FILES
-    for name, file in request.FILES.items():
-        return HttpResponse(file.name + file.read()) #render_to_response('home.html')
+# request.FILES
+#    res = ""
+
+    for name, f in request.FILES.items():
+        g = open(os.path.join(UPLOAD_FOLDER,f.name), 'wb')
+        g.write(f.read())
+        g.close()
+        dropboxupload_server(request.session["email"], f.name)
+        # box_uploadfile(request.session["email"], f.name, f.name)
+        return HttpResponse(name + f.name)
+#    res += file
+
+
 
 def crosssharerequest(request):
     fromemail = request.session["email"]
