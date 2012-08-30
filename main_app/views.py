@@ -43,8 +43,8 @@ def upload(request):
         g = open(os.path.join(UPLOAD_FOLDER,f.name), 'wb')
         g.write(f.read())
         g.close()
-        dropboxupload_server(request.session["email"], f.name)
-        # box_uploadfile(request.session["email"], f.name, f.name)
+        # dropboxupload_server(request.session["email"], f.name)
+        box_uploadfile(request.session["email"], f.name, f.name)
         return HttpResponse(name + f.name)
 #    res += file
 

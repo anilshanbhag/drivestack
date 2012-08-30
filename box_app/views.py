@@ -61,11 +61,10 @@ def folder_details( email, path='/' ):
 
 def box_uploadfile( email,fileid,filename):
     box = BoxDotNet()
-
     accounts = Accounts.objects.filter(email = email, account_type = 'box')
     account_data = json.loads( accounts[0].account_data )
-    data=open(os.path.join(UPLOAD_FOLDER,fileid),'rb').read()
-    box.upload(filename, data , api_key = BOX_API_KEY, auth_token = account_data['auth_token'], folder_id = "0")
+    datapath = os.path.join(UPLOAD_FOLDER,fileid)
+    box.upload(filename, datapath , api_key = BOX_API_KEY, auth_token = account_data['auth_token'], folder_id = "0")
 
 def box_download( request, id ):
     email = request.session["email"]

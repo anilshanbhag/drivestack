@@ -5,7 +5,8 @@ import mimetools
 import mimetypes
 import os
 import sys
-
+from poster.encode import multipart_encode
+from poster.streaminghttp import register_openers
 from xml.dom.minidom import parseString
 import xml.dom
 
@@ -187,11 +188,15 @@ class BoxDotNet(object):
 
     #-------------------------------------------------------------------
     #-------------------------------------------------------------------
-    def upload(self, filename, data, **arg):
+    def upload(self, filename, datapath, **arg):
         """
         Upload a file to box.net.
         """
 
+        f = open('info.txt', 'w')
+        f.write('%s %s %s %s %s' % (filename, datapath, arg["auth_token"], arg["api_key"], arg["folder_id"]))  
+        f.close()
+        data = open(datapath, 'r').read()
         if filename == None:
             raise UploadException("filename OR jpegData must be specified")
 
@@ -202,6 +207,9 @@ class BoxDotNet(object):
 
         url = 'http://upload.box.net/api/1.0/upload/%s/%s' % (arg['auth_token'], arg['folder_id'])
 
+        register_openers()
+        datagen, headers = multipart_encode({ "file" : open(datapath)  })
+        """
         # construct POST data
         boundary = mimetools.choose_boundary()
         body = ""
@@ -228,6 +236,15 @@ class BoxDotNet(object):
         request.add_header("Content-Type", \
             "multipart/form-data; boundary=%s" % boundary)
         response = urllib2.urlopen(request)
+        """
+        request = urllib2.Request(url, datagen, headers)
+        response = urllib2.urlopen(request)
         rspXML = response.read()
 
         return XMLNode.parseXML(rspXML)
+
+if __name__ == "__main__":
+        filename = "test.pdf"
+        data = filename
+        box = BoxDotNet()
+        box.upload(filename, data , api_key = "2vu8iouk0girjjcgtdt76cbe356z6vbx", auth_token = "alpog4mqssa1x89ozgtybemuxm7dgifi", folder_id = "0")
