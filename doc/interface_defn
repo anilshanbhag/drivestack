@@ -1,0 +1,10 @@
+Every new drive should implement the following methods
+
+config -> Containing the necessary keys
+
+1. add_account (request)
+2. oauth_callback (request)
+3. download ( request )
+4. download_to_server( email, path )
+5. upload_from_server( email, fileid, path )
+7. dir_info ( email , path = '/')
