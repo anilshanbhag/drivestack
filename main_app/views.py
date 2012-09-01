@@ -25,24 +25,28 @@ def homepage( request ):
 def home( request ):
     """
     Logged in user landing page
+    TODO : Work out user name
     """
-    user_email request.session["email"];
+    if not "email" in request.session:
+        return redirect('/')
+
+    user_email = request.session["email"];
     box_data = box.dir_info( user_email,  '/' )
     dropbox_data = dropbox.dir_info( user_email,  '/' )
     google_data = retrieve_all_files( request.session["email"] )
-    pending_share_dump = pendingShares( request )
+    pending_share_dump = pending_shares( request )
 
     user_data = {
-        "name" : user_name, 
+        "name" : user_email,
         "email" : user_email
     }
     drive_stack = {
-        "box_data" : json.dumps( box_data ), 
-        "dropbox_data" : json.dumps( dropbox_data ), 
+        "box_data" : json.dumps( box_data ),
+        "dropbox_data" : json.dumps( dropbox_data ),
         "google_data": json.dumps( google_data )
     }
     sharing_info = {
-        "pending_shares" : json.dumps( pending_share_dump ), 
+        "pending_shares" : json.dumps( pending_share_dump ),
     }
     params = dict( user_data.items( ) + drive_stack.items( ) + sharing_info.items( ) )
 

@@ -9,8 +9,8 @@ urlpatterns = patterns('',
 
     (r'^$', main_app.views.homepage),
     (r'^home$', main_app.views.home),
-    (r'^share$', main_app.views.crosssharerequest),
-    (r'^shareaccept$', main_app.views.crosssharemanifest),
+    # (r'^share$', main_app.views.crosssharerequest),
+    # (r'^shareaccept$', main_app.views.crosssharemanifest),
     (r'^upload$', main_app.views.upload),
     (r'^logout$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
 
