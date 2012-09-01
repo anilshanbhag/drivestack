@@ -1,94 +1,107 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response,  redirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from box_app.views import folder_details
-from dropbox_app.views import dropboxfiles
+
+from box_app import views as box
+from dropbox_app import views as dropbox
+from google_app.views import download_from_google, upload_to_google
+from google_app.views import google_home, retrieve_all_files, refresh_google_token
+
 from main_app.models import *
-from google_app.views import download_from_google,upload_to_google
-from dropbox_app.views import dropboxdownload_server,dropboxupload_server
-from box_app.views import box_download_helper,box_uploadfile
-from google_app.views import google_home,retrieve_all_files,refresh_google_token
+from main_app.settings import UPLOAD_FOLDER
+from main_app.utils import *
+
 import json
 import os.path
-from main_app.settings import UPLOAD_FOLDER
-def homepage(request):
-    # request.session["name"] = "DSADSADSADSAD"
-    return render_to_response('index.html')
 
-def home(request):
-    # data = google_home(request.session["email"])
-    # return HttpResponse(data)
-    dump = folder_details( request.session["email"], '/' )
-    dropboxdump =  dropboxfiles(request)
-    googledata = retrieve_all_files(request.session["email"])
-    pendingShareDump = pendingShares(request)
-    params = {
-        "boxData" : json.dumps(dump),
-        "dropboxData" : json.dumps(dropboxdump),
-        "pendingShares" : json.dumps(pendingShareDump),
-        "googleData": json.dumps(googledata),
+def homepage( request ):
+    """
+    Index Page for user ( when he is not logged in )
+    """
+    if "email" in request.session:
+        return redirect( '/home' )
+    return render_to_response( 'index.html' )
+
+def home( request ):
+    """
+    Logged in user landing page
+    """
+    user_email request.session["email"];
+    box_data = box.dir_info( user_email,  '/' )
+    dropbox_data = dropbox.dir_info( user_email,  '/' )
+    google_data = retrieve_all_files( request.session["email"] )
+    pending_share_dump = pendingShares( request )
+
+    user_data = {
+        "name" : user_name, 
+        "email" : user_email
     }
-    return render_to_response('home.html', params)
+    drive_stack = {
+        "box_data" : json.dumps( box_data ), 
+        "dropbox_data" : json.dumps( dropbox_data ), 
+        "google_data": json.dumps( google_data )
+    }
+    sharing_info = {
+        "pending_shares" : json.dumps( pending_share_dump ), 
+    }
+    params = dict( user_data.items( ) + drive_stack.items( ) + sharing_info.items( ) )
 
-def home_saket(request):
-    data = refresh_google_token(request.session["email"])
-    return HttpResponse(data)
+    return render_to_response( 'home.html',  params )
+
+def home_saket( request ):
+    data = refresh_google_token( request.session["email"] )
+    return HttpResponse( data )
 
 @csrf_exempt
-def upload(request):
-# request.FILES
-#    res = ""
+def upload( request ):
+    for name,  f in request.FILES.items( ):
+        g = open( os.path.join( UPLOAD_FOLDER,  hash_email( email ) + f.name ),  'w' )
+        g.write( f.read( ) )
+        g.close( )
+        box.upload_from_server( request.session["email"],  f.name,  "/" )
+        return HttpResponse( name + f.name )
 
-    for name, f in request.FILES.items():
-        g = open(os.path.join(UPLOAD_FOLDER,f.name), 'wb')
-        g.write(f.read())
-        g.close()
-        # dropboxupload_server(request.session["email"], f.name)
-        box_uploadfile(request.session["email"], f.name, f.name)
-        return HttpResponse(name + f.name)
-#    res += file
+def cross_share_request( request ):
+    from_email = request.session["email"]
+    from_cloud = request.GET["from_cloud"]
+    file_id = request.GET["fileid"]
+    to_email = request.GET["to_email"]
+    file_name = request.GET["file_name"]
+    s = SharingInfo( shared_by = from_email, shared_with = to_email, shared_from_drive = from_cloud,  file_path_or_id = file_id, file_name = file_name )
+    s.save( )
+    return HttpResponse( "Share request sent" )
 
+def cross_share_manifest( request ):
+    to_email = request.session["email"]
+    from_cloud = request.GET["shared_from_drive"]
+    file_id = request.GET["file_path_or_id"]
+    from_email = request.GET["shared_by"]
 
+    to_cloud = Accounts.objects.filter( email = to_email ).values( "account_type" )[0]["account_type"]
+    file_name = SharingInfo.objects.filter( shared_with = to_email ).filter( file_path_or_id = file_id ).values( "file_name" )[0]["file_name"]
 
-def crosssharerequest(request):
-    fromemail = request.session["email"]
-    fromcloud=request.GET["fromcloud"]
-    fileid=request.GET["fileid"]
-    toemail=request.GET["toemail"]
-    filename=request.GET["filename"]
-    s = SharingInfo(shared_by=fromemail,shared_with=toemail,shared_from_drive = fromcloud, file_path_or_id = fileid,file_name=filename)
-    s.save()
-    return HttpResponse("Share request sent")
+    if from_cloud == "google":
+        download_from_google( from_email,  file_id )
+    elif from_cloud == "dropbox":
+        dropboxdownload_server( from_email,  file_id )
+    elif from_cloud == "box":
+        box.download_to_server( from_email, file_id, file_name )
 
-def crosssharemanifest(request):
-    toemail = request.session["email"]
-    fromcloud=request.GET["shared_from_drive"]
-    fileid=request.GET["file_path_or_id"]
-    fromemail=request.GET["shared_by"]
-    tocloud = Accounts.objects.filter(email=toemail).values("account_type")[0]["account_type"]
-    filename = SharingInfo.objects.filter(shared_with=toemail).filter(file_path_or_id=fileid).values("file_name")[0]["file_name"]
-    if fromcloud == "google":
-        download_from_google(fromemail,fileid)
-    if fromcloud == "dropbox":
-        dropboxdownload_server(fromemail,fileid)
-    if fromcloud == "box":
-        box_download_helper(fromemail,fileid,filename)
+    if to_cloud == "google":
+        uploadtogoogle( to_email,  file_id,  title,  mimetype,  desciption )
+    elif to_cloud == "dropbox":
+        dropbox.upload_from_server( to_email,  file_name,  "/" )
+    elif to_cloud == "box":
+        box.upload_from_server( to_email,  file_name,  "/" )
 
-    if tocloud == "google":
-        uploadtogoogle(toemail,fileid,title,mimetype,desciption)
+    return HttpResponse( "File Shared \m/" )
 
-    if tocloud == "dropbox":
-        dropboxupload_server(toemail,fileid)
-    if tocloud == "box":
-        box_uploadfile(toemail,fileid, filename)
-    return HttpResponse("File Shared \m/")
-
-def pendingShares(request):
-    toemail=request.session["email"]
-    shares = SharingInfo.objects.filter(shared_with=toemail).values()
+def pending_shares( request ):
+    to_email = request.session["email"]
+    shares = SharingInfo.objects.filter( shared_with = to_email ).values( )
     shares1 = []
     for i in shares:
-        shares1.append(i)
-    if len(shares1) == 0:
+        shares1.append( i )
+    if len( shares1 ) == 0:
         shares1 = {}
     return shares1

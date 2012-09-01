@@ -11,7 +11,6 @@ class Accounts(models.Model):
     modified = models.DateTimeField()
 
     class Meta:
-        #proxy = True
         unique_together = (("email","account_type"))
 
     def save(self, *args, **kwargs):
@@ -27,6 +26,3 @@ class SharingInfo(models.Model):
     shared_from_drive = models.CharField(max_length=1000)
     file_path_or_id = models.CharField(max_length=1000)
     file_name = models.CharField(max_length=1000)
-
-
-       

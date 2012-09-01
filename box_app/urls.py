@@ -3,7 +3,7 @@ import views
 
 urlpatterns = patterns('',
     (r'^box/login', views.add_account),
-    (r'^box/addaccount', views.add_account),
-    (r'^box/oauthcallback', views.oauth_callback),
+    (r'^box/add_account', views.add_account),
+    (r'^box/oauth_callback', views.oauth_callback),
     (r'^box/download/(\d+)', views.download),
 )

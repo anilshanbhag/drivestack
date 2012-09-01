@@ -3,27 +3,7 @@
     <head>
         <title> DriveStack </title>
     	<link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
-        <style type="text/css">
-            .folder_icon {
-                background: url('/static/img/collectionsprite.png') no-repeat -4px 0; width: 16px!important; height: 13px!important; position: static!important; display: inline-block; line-height: normal; margin-bottom: -2px; margin-right: 7px; 
-            }
-            .file_icon {
-                background: url('/static/img/document_icon.png') no-repeat; width: 16px!important; height: 13px!important; position: static!important; display: inline-block; line-height: normal; margin-bottom: -2px; margin-right: 7px; 
-            }
-            .favourite_icon {
-                background: url('/static/img/star4.png') no-repeat; width: 16px!important; height: 16px!important; position: static!important; display: inline-block; line-height: normal; margin-bottom: -2px; margin-right: 7px; 
-            }
-            .favourite_icon:hover {
-                background: url('/static/img/star-hover4.png');
-            }
-            .tabbed {
-                padding-right: 5px;
-            }
-            .dropdown-unlink {
-               padding: 3px 15px; 
-            }
-            .dull {color: #555;}
-        </style>
+        <link href="/static/app.css" rel="stylesheet">
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
@@ -160,102 +140,10 @@
     <script type="text/javascript" src="/static/bootstrap/js/jquery.min.js"></script>
     <script type="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript">
-    // Drive Show
-    var drive = document.querySelector('#drive-content'); 
+    var drive = document.querySelector('#drive-content');
     var dropboxData = "{{ dropboxData }}";
-    dropboxData = dropboxData.replace(/&quot;/g, "\"");
-    dropboxData = JSON.parse( dropboxData );
-    for (i in dropboxData) {
-        var row = dropboxData[i];
-        var pathArr = row['path'].split('/');
-        var row_html = "<tr> <td> <span class='favourite_icon'></span> </td> <td>";
-        row_html += row['is_dir'] ? "<a href='#'><span class='folder_icon'></span>" : "<a href='#'><span class='file_icon'></span>";
-        row_html += pathArr[pathArr.length - 1] + "</a></td><td>Dropbox</td><td>" + row['modified'] + "</td> <td><a data-toggle='modal' href='#fileShare' href='share'><img src='/static/icons/share.png' /></a><a href='delete'><img src='/static/icons/delete.png' /></a></td></tr>";
-        drive.innerHTML += row_html;
-    }
-
     var boxData = "{{ boxData }}";
-    boxData = boxData.replace(/&quot;/g, "\"");
-    boxData = JSON.parse( boxData );
-    for (i in boxData['item_collection']['entries']) {
-        var row = boxData['item_collection']['entries'][i];
-        var row_html = "<tr> <td> <span class='favourite_icon'></span> </td> <td>";
-        row_html += row['type'] == "folder" ? "<a href='#'><span class='folder_icon'></span>" : "<a href='/box/download/" + row["id"] + "'><span class='file_icon'></span>";
-        row_html += row['name'] + "</a></td><td>" + "Box" + "</td><td>" + "</td><td><a id='" + row['id']  + "' data-toggle='modal' href='#fileShare' href='share'><img src='/static/icons/share.png' /></a><a href='delete'><img src='/static/icons/delete.png' /></a></td></tr>";
-        drive.innerHTML += row_html;
-    }
-
     var driveData = "{{ googleData }}";
-    driveData = driveData.replace(/&quot;/g, "\"");
-    driveData = JSON.parse( driveData );
-    for (i in driveData) {
-        var row = driveData[i];
-        var row_html = "<tr> <td> <span class='favourite_icon'></span> </td> <td>";
-        row_html += row['is_dir'] == "True" ? "<a href='#'><span class='folder_icon'></span>" : "<a href='#'><span class='file_icon'></span>";
-        row_html += row["title"] + "</a></td><td>Drive</td><td>" + row['modified'] + "</td> <td><a id='" + row["id"]  +"' data-toggle='modal' href='#fileShare'><img src='/static/icons/share.png' /></a><a href='delete'><img src='/static/icons/delete.png' /></a></td></tr>";
-        drive.innerHTML += row_html;
-    }
-    
     var pendingShares = "{{ pendingShares }}";
-    pendingShares = pendingShares.replace(/&quot;/g, "\"");
-    pendingShares = JSON.parse( pendingShares );
-
-    if ( pendingShares.length > 0 ) {
-        document.querySelector('#file_path_or_id').value = pendingShares[0]["file_path_or_id"];
-        document.querySelector('#shared_by').value = pendingShares[0]["shared_by"];
-        document.querySelector('#shared_from_drive').value = pendingShares[0]["shared_from_drive"];
-        document.querySelector('#shared_with').value = pendingShares[0]["shared_with"];
-        $('#shareRequests').modal({ show : true });
-    } else {
-        $('#shareRequests').modal({ show : false });    
-    }
-
-    // File upload modal
-    $('#fileUpload').modal({
-        show: false
-    });
-
-    $('#fileShare').modal({
-        show: false
-    });
-    /*
-    var input = document.getElementById("file"), 
-            formdata = false;
-
-    if (window.FormData) {
-        formdata = new FormData();
-        document.getElementById("btn").style.display = "none";
-    }
-
-    input.addEventListener("change", function (evt) {
-        document.getElementById("response").innerHTML = "Uploading . . ."
-        var i = 0, len = this.files.length, img, reader, file;
-    
-        for ( ; i < len; i++ ) {
-            file = this.files[i];
-    
-            if ( window.FileReader ) {
-                reader = new FileReader();
-                reader.readAsDataURL(file);
-            }
-            if (formdata) {
-                formdata.append("files[]", file);
-            }
-        }
-    
-        if (formdata) {
-            $.ajax({
-                url: "/upload",
-                type: "POST",
-                data: formdata,
-                processData: false,
-                contentType: false,
-                success: function (res) {
-                    document.getElementById("response").innerHTML = res; 
-                }
-            });
-        }
-    }, false);
-    */ 
     </script>
 </html>
