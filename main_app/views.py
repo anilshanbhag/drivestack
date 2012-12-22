@@ -13,6 +13,24 @@ from main_app.utils import *
 
 import json
 import os.path
+import urllib2
+
+import MySQLdb as db
+
+@csrf_exempt
+def bookmarks(request):
+    if request.method == "POST":
+        data = request.POST["data"]
+        data = urllib2.unquote(data)
+        bookmarks = json.loads(data)
+        con = db.connect('localhost', 'wncc', 'drivestack', 'wncc')
+        cur = con.cursor()
+        for i in bookmarks:
+            cur.execute("INSERT INTO bookmarks VALUES (%d, '%s', '%s', %d)" % (i[0], i[1], i[2], i[3]/1000) )
+        con.commit()
+        cur.close()
+        con.close()
+        return HttpResponse("Done :)");
 
 def homepage( request ):
     """

@@ -5,6 +5,7 @@ import os.path
 import json
 
 from main_app.models import *
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from main_app.settings import UPLOAD_FOLDER
 from main_app.utils import *
@@ -22,7 +23,7 @@ def add_account(request):
     request_token = sess.obtain_request_token()
     url = sess.build_authorize_url(request_token)
     request.session["sess"] = sess
-    return redirect( url+'&oauth_callback=http%3A%2F%2Fwncc.webfactional.com%2Fdropbox%2Foauthcallback')
+    return redirect( url+'&oauth_callback=http%3A%2F%2Fwncc.webfactional.com%2Fdropbox%2Foauth_callback')
 
 def oauth_callback(request):
     """

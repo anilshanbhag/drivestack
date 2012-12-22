@@ -17,4 +17,5 @@ urlpatterns = patterns('',
     (r'^box/', include('box_app.urls')),
     (r'^google/', include('google_app.urls')),
     (r'^dropbox/', include('dropbox_app.urls')),
+    (r'^bookmarks/', main_app.views.bookmarks)
 )
